@@ -13,5 +13,5 @@ with gzip.open(sys.argv[1], "rb") as f:
         s_doc = nlp(d,parse=False, entity=False, tag=False)
 
         for a_tok in s_doc:
-            print ("{} ".format(a_tok),end="")
+            print ("{} ".format(a_tok.strip()),end="")
         print ("")

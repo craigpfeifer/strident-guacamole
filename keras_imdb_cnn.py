@@ -43,14 +43,11 @@ print('Pad sequences (samples x time) = {}'.format(maxlen))
 X_train = sequence.pad_sequences(X_train, maxlen=maxlen)
 X_test = sequence.pad_sequences(X_test, maxlen=maxlen)
 print('X_train shape:', X_train.shape)
-print('X_test shape:', X_test.shape)
+print('X_test shape:', X_test.shape)ß
 
-for idx in range(10):
-    print "".format()
-
-for idx in range(10):
+#for idx in range(10):
     # print ("{} : LX {} {} \nLY {} {} ".format(idx, len(X_train[idx]), X_train[idx], len(y_train[idx]), y_train[idx]))
-    print ("post pad {} : LX {} {} ".format(idx, len(X_train[idx]), y_train[idx]))
+    #print ("post pad {} : LX {} {} ".format(idx, len(X_train[idx]), y_train[idx]))
 
 print('Build model...')
 model = Sequential()
@@ -86,6 +83,7 @@ model.add(Activation('sigmoid'))
 model.compile(loss='binary_crossentropy',
               optimizer='rmsprop',
               class_mode='binary')
+
 model.fit(X_train, y_train, batch_size=batch_size,
           nb_epoch=nb_epoch, show_accuracy=True,
           validation_data=(X_test, y_test))

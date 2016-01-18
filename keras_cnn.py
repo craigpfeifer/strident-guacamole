@@ -200,10 +200,19 @@ if __name__ == "__main__":
 
         print ("processing training file : {} {}".format(train_file, label))
 
+        count_lines = open(train_file)
+        #num_lines = sum(1 for line in count_lines)
+
+        num_lines = 27000
+
+        count_lines.close()
+
+        print ("{} lines in file {}".format(num_lines,train_file))
+
         #
         # for the first n examples (speeds up debugging data proc code)
         #
-        for i in range(1,101,1):
+        for i in range(1,num_lines,1):
             a_sent = linecache.getline(train_file, i)
 
             # split out tokens
@@ -212,6 +221,11 @@ if __name__ == "__main__":
             all_vecs.append(X_vec)
             trainy_vals.append(Y_vec)
 
+            if (i % 1000 == 0):
+                print ('.', end="")
+
+        print("")
+
     print ("num examples : {}".format(num_examples))
 
     print ("unpadded arr len {}".format(len(all_vecs)))
@@ -219,8 +233,15 @@ if __name__ == "__main__":
     all_vecs = sequence.pad_sequences(all_vecs, maxlen=maxlen)
     print ("padded shape {}".format(all_vecs.shape))
 
-    for a_vec in all_vecs:
-        print (a_vec.shape)
+    num_train = int(len(all_vecs) * 0.7)
+    train_X = all_vecs[:num_train]
+    test_X = all_vecs[num_train:]
+
+    train_Y = trainy_vals[:num_train]
+    test_Y = trainy_vals[num_train:]
+
+    #for a_vec in all_vecs:
+    #    print (a_vec.shape)
 
     # check to make sure we got the right number of examples after the padding
     nb_samples = all_vecs.shape[0]
@@ -234,7 +255,8 @@ if __name__ == "__main__":
 
     max_toks = np.max(num_toks)
 
-    print ("{} training instances".format(len(all_vecs)))
+    print ("{} training instances".format(len(train_X)))
+    print ("{} testing instances".format(len(test_X)))
 
     print ("FINAL {} max toks".format(max_toks))
     print ("FINAL {} min toks".format(np.min(num_toks)))
@@ -243,24 +265,26 @@ if __name__ == "__main__":
 
     print (Counter(num_toks))
 
-    import theano
-    theano.config.optimizer='fast_compile'
-    theano.config.exception_verbosity='high'
+    # import theano
+    # theano.config.optimizer='fast_compile'
+    # theano.config.exception_verbosity='high'
 
     model = make_nn(len(file_train_data))
     #plot(model, to_file='model.png')
 
     print ('fitting model')
-    model.fit(all_vecs,
-              trainy_vals,
+    model.fit(train_X,
+              train_Y,
               nb_epoch=nb_epoch,
               batch_size=batch_size,
               verbose=1,
               show_accuracy=True,
               validation_split=0.1)
 
+    model.save_weights("amzn_weights_cnn.keras", overwrite=True)
+
     print ("Done fitting model")
 
-    score = model.evaluate(testx_vals, testy_vals)
+    print(model.evaluate(test_X, test_Y))
 
     print ("Evaluated model")
